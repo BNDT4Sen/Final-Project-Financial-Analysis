@@ -61,15 +61,17 @@ for ticker in ticker_list:
     headers = headers
     )
 
+    print(response.status_code, ticker)
+
     temp_Json = json.loads(response.text)
 
     try:
-        file_name = temp_Json['results'][0]['tickers'][-1]
-        print(f'Request for {ticker}: {response.status_code}')
-
+        file_name = temp_Json['results'][0]['tickers'][0]
+        print(response.status_code, ticker)
+        
     except:
         file_name = 'Error'
-        print(f'Error for: {ticker}')
+        print('Error for:', ticker)
         Error_Count += 1
         Error_List.append(ticker)
 
@@ -81,10 +83,10 @@ for ticker in ticker_list:
 with open('./Data/Raw Request Data/AMD_Annual_Financials.json') as json_file:
     data = json.load(json_file)
 
-print('#'*50)
+print('#*25')
 print(f'Number of stocks unavailable: {Error_Count}')
 print(f'Stocks Unavailable: {Error_List}')
-print('#'*50)
+print('#*25')
 print('Example Data:')
 print(data)
-print('#'*50)
+print('#*25')
