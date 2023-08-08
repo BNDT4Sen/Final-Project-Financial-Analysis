@@ -29,7 +29,6 @@ for df in dfs:
 # The result is an expected 62 DataFrames.
 print(len(df_list))
 
-
 # The second last page of the Russel 3000 PDF file is an incomplete table, and Tabula cannot understand it.
 # Because the number of companies remaining was only ~30, I copied them into a DataFrame manually.
 last_page = [
