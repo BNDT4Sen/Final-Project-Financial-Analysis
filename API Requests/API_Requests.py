@@ -65,6 +65,7 @@ for ticker in ticker_list:
 
     try:
         file_name = temp_Json['results'][0]['tickers'][-1]
+        file_name = ticker
         print(f'Request for {ticker}: {response.status_code}')
 
     except:
@@ -81,10 +82,10 @@ for ticker in ticker_list:
 with open('./Data/Raw Request Data/AMD_Annual_Financials.json') as json_file:
     data = json.load(json_file)
 
-print('#'*50)
+print('#'*100)
 print(f'Number of stocks unavailable: {Error_Count}')
 print(f'Stocks Unavailable: {Error_List}')
-print('#'*50)
+print('#'*100)
 print('Example Data:')
 print(data)
-print('#'*50)
+print('#'*100)
