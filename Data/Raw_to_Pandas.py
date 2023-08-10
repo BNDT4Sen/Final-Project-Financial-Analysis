@@ -1,14 +1,14 @@
 import pandas as pd
+import numpy as np
 import json
-import re 
 
 company_ticker_df = pd.read_csv('./Data/Pandas_DataFrames/Company_Ticker_DF.csv')
+industry_classification_df = pd.read_csv('./Data/Standard_Industrial_Classifications.csv', index_col = 'SIC Code')
 
 Missing_Count = 0
 Misstatement_Count = 0
-
-test_list = ['INTC', 'ORCL', 'IBM']
-
+SIC_Missing = 0
+Missing_Info = 0
 
 comprehensive_income_df = pd.DataFrame()
 
@@ -18,27 +18,36 @@ cash_flow_df = pd.DataFrame()
 
 balance_sheet_df = pd.DataFrame() 
 
-# for ticker in company_ticker_df['Ticker']:
-for ticker in test_list:
+filing_information_df = pd.DataFrame()
+
+company_information_df = pd.DataFrame()
+
+# test_list = ['INTC', 'ORCL', 'IBM']
+# for ticker in test_list:
+for ticker in company_ticker_df['Ticker']:
     try:
         with open(f'./Data/Raw Request Data/{ticker}_Annual_Financials.json') as financials:
             financials_json = json.load(financials)
-            financials_df = pd.DataFrame(financials_json['results'])
-            financials_stripped = financials_df[['id', 'financials', 'fiscal_year']]
+            financials_stripped = pd.DataFrame(financials_json['results'])
+            try:
+                industry_code = np.int64(financials_stripped['sic'])
+                industry_classification = industry_classification_df.loc[industry_code]
+            except:
+                print('SIC code could not be retrieved')
+                SIC_Missing += 1
             financials_stripped.set_index('id', inplace = True)
-            
             print(f'{ticker} data found!')
 
             for index, rows in financials_stripped.iterrows():
                 financial_statement_list = []
-                company_information = {'ticker': ticker,
+                basic_information = {'ticker': ticker,
                                        'fiscal_year': financials_stripped['fiscal_year'][index]}
                 for statement_name, statement_values in financials_stripped['financials'][index].items():
                     financial_dict = {}
                     financial_data = {}
-                    
                     financial_statement_list.append(str(statement_name))
                     column_names = []
+
                     for line_item, line_value in statement_values.items():
                         column_names.append(line_item)
                         for key, value in line_value.items():
@@ -46,7 +55,7 @@ for ticker in test_list:
                                 financial_data[line_item] = value
 
                     statement_series = pd.Series(data = financial_data, name = index)
-                    information_series = pd.Series(data = company_information, name = index)
+                    information_series = pd.Series(data = basic_information, name = index)
 
                     if statement_name == 'comprehensive_income':
                         comprehensive_concat = pd.concat(objs = [information_series, statement_series])
@@ -69,6 +78,28 @@ for ticker in test_list:
                         Misstatement_Count += 1
                         continue
 
+                filing_information = {
+                    'ticker': ticker,
+                    'start_date': financials_stripped['start_date'][index],
+                    'end_date': financials_stripped['end_date'][index],
+                    'filing_date': financials_stripped['filing_date'][index],
+                    'fiscal_year': financials_stripped['fiscal_year'][index],
+                    'time_frame': financials_stripped['timeframe'][index],
+                    'source_filing_url': financials_stripped['source_filing_url'][index]}
+                filing_information_series = pd.Series(data = filing_information, name = index)
+                filing_information_df = pd.concat(objs = [filing_information_df, filing_information_series.to_frame().T])
+            try:
+                company_information = {
+                    'company_name': financials_stripped['company_name'][0],
+                    'sic': industry_classification.index[0],
+                    'office': industry_classification['Office'].values[0],
+                    'industry': industry_classification['Industry Title'].values[0],
+                    'cik': financials_stripped['cik'][0]}
+                company_information_series = pd.Series(data = company_information, name = ticker)
+                company_information_df = pd.concat(objs = [company_information_df, company_information_series.to_frame().T])
+            except:
+                print(f'Company information for {ticker} could not be retrieved!')
+                Missing_Info +=1
     except FileNotFoundError:
         print(f'{ticker} data not found. :(')
         Missing_Count += 1
@@ -81,6 +112,30 @@ cash_flow_df.to_csv('./Data/Pandas_DataFrames/cash_flow_df.csv')
 
 balance_sheet_df.to_csv('./Data/Pandas_DataFrames/balance_sheet_df.csv')
 
+filing_information_df.to_csv('./Data/Pandas_DataFrames/filing_information_df.csv')
+
+company_information_df.to_csv('./Data/Pandas_DataFrames/company_information_df.csv')
+
 print(cash_flow_df)
 print(f'{Missing_Count} stocks without data.')
 print(f'{Misstatement_Count} financial statements could not be properly identified!')
+print(f'Shape of comprehensive income DataFrame is: {comprehensive_income_df.shape}')
+print(f'Shape of income statement DataFrame is: {income_statement_df.shape}')
+print(f'Shape of cash flow DataFrame is: {cash_flow_df.shape}')
+print(f'Shape of balance sheet DataFrame is: {balance_sheet_df.shape}')
+print(f'Shape of filing information DataFrame is: {filing_information_df.shape}')
+print(f'Shape of company information DataFrame is: {company_information_df.shape}')
+print(filing_information_df)
+print(company_information_df)
+
+
+
+# TEST SET RESULTS
+# 0 stocks without data.
+# 0 financial statements could not be properly identified!
+# Shape of comprehensive income DataFrame is: (36, 7)
+# Shape of income statement DataFrame is: (36, 31)
+# Shape of cash flow DataFrame is: (36, 11)
+# Shape of balance sheet DataFrame is: (36, 17)
+# Shape of filing information DataFrame is: (36, 7)
+# Shape of company information DataFrame is: (3, 5)
