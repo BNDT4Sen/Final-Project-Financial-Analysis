@@ -7,6 +7,16 @@ full_df_list = ['comprehensive_income_df', 'income_statement_df', 'cash_flow_df'
 statements_list = ['comprehensive_income_df', 'income_statement_df', 'cash_flow_df', 'balance_sheet_df']
 other_information_list = ['filing_information_df', 'company_information_df']
 
+def unique_check(df):
+    for column in df:
+        g = df.groupby(df.index)[column].value_counts()
+        g2 = g[g>1]
+    return g2
+
+    # unique_index = pd.unique(df.index)
+    # df_difference = len(df) - len(unique_index)
+    # print(f'{df_difference}')
+        
 def nan_check(df_list):
     series_list = []
     name_count = -1
