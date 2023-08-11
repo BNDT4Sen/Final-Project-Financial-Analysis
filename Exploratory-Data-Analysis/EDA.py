@@ -8,9 +8,11 @@ statements_list = ['comprehensive_income_df', 'income_statement_df', 'cash_flow_
 other_information_list = ['filing_information_df', 'company_information_df']
 
 def unique_check(df):
+    # g3 = pd.DataFrame()
     for column in df:
         g = df.groupby(df.index)[column].value_counts()
         g2 = g[g>1]
+        # pd.concat([g3, g2])
     return g2
 
     # unique_index = pd.unique(df.index)
