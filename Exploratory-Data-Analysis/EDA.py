@@ -8,16 +8,14 @@ statements_list = ['comprehensive_income_df', 'income_statement_df', 'cash_flow_
 other_information_list = ['filing_information_df', 'company_information_df']
 
 def unique_check(df):
-    # g3 = pd.DataFrame()
     for column in df:
         g = df.groupby(df.index)[column].value_counts()
         g2 = g[g>1]
-        # pd.concat([g3, g2])
-    return g2
+    return g2.head(5)
 
-    # unique_index = pd.unique(df.index)
-    # df_difference = len(df) - len(unique_index)
-    # print(f'{df_difference}')
+def duplicate_removal(df):
+    df = df[~df.index.duplicated(keep = 'first')]
+    return df
         
 def nan_check(df_list):
     series_list = []
@@ -30,7 +28,7 @@ def nan_check(df_list):
             if nan_count > 0:
                 nan_list.append(nan_count)
                 column_list.append(column)
-        nan_series = pd.Series(data = nan_list, index = column_list).sort_values(ascending = False)
+        nan_series = pd.Series(data = nan_list, index = column_list, dtype = 'float64').sort_values(ascending = False)
         series_list.append(nan_series)
     for statement_series in series_list:
         name_count +=1
