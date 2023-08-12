@@ -38,6 +38,7 @@ def current_ratio(balance_sheet_df):
 # print(cash_flow_df.columns)
 
 def operating_cash_flow(cash_flow_df, balance_sheet_df):
+    cash_flow_df = cash_flow_df[cash_flow_df.index.isin(balance_sheet_df.index)]
     balance_sheet_df = balance_sheet_df[balance_sheet_df.index.isin(cash_flow_df.index)]
     ratio_list = []
     index_list = []

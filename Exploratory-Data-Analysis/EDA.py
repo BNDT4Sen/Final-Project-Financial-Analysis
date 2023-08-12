@@ -16,7 +16,7 @@ def unique_check(df):
 def duplicate_removal(df):
     df = df[~df.index.duplicated(keep = 'first')]
     return df
-        
+
 def nan_check(df_list):
     series_list = []
     name_count = -1
@@ -33,10 +33,26 @@ def nan_check(df_list):
     for statement_series in series_list:
         name_count +=1
         df_name = statements_list[name_count]
-        print(f'############{df_name}############')
+        print(f'#'*25, {df_name}, '#'*25)
         for line_item_index, line_item in statement_series.items():
             print(f'{line_item} null values in column {line_item_index}')
     return 
+
+def drop_incomplete_rows(df):
+    criteria_columns = []
+    rows_to_drop = []
+    for column in df:
+        nan_count = df[column].isna().sum()
+        if nan_count > 0 and nan_count < 100:
+            criteria_columns.append(column)
+    for index, row in df.iterrows():
+        for dropping_column in criteria_columns:
+            if np.isnan(df.loc[index][dropping_column]):
+                rows_to_drop.append(index)
+    print(rows_to_drop)
+    print(criteria_columns)
+    df = df.drop(labels = rows_to_drop)
+    return df
 
 def year_distribution(series):
     sns.set_theme(style='darkgrid')
