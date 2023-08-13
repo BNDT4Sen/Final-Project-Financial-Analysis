@@ -33,10 +33,6 @@ def current_ratio(balance_sheet_df):
     ratio_series = pd.Series(data = ratio_list, index = index_list)
     return ratio_series
 
-# print(current_ratio(balance_sheet_df))
-
-# print(cash_flow_df.columns)
-
 def operating_cash_flow(cash_flow_df, balance_sheet_df):
     cash_flow_df = cash_flow_df[cash_flow_df.index.isin(balance_sheet_df.index)]
     balance_sheet_df = balance_sheet_df[balance_sheet_df.index.isin(cash_flow_df.index)]
@@ -63,3 +59,98 @@ def debt_to_equity(balance_sheet_df):
     ratio_series = pd.Series(data = ratio_list, index = index_list)
     return ratio_series
 
+def interest_coverage(income_statement_df):
+    ratio_list = []
+    index_list = []
+    for index, row in income_statement_df.iterrows():
+        EBIT = row['operating_income_loss']
+        interest_expense = row['interest_expense_operating']
+        index_list.append(index)
+        if interest_expense > 0:
+            ratio = EBIT / interest_expense
+        else:
+            ratio = 0
+        ratio_list.append(ratio)
+    ratio_series = pd.Series(data = ratio_list, index = index_list)
+    return ratio_series
+
+
+# def asset_turnover(income_statement_df, balance_sheet_df):
+#     income_statement_df = income_statement_df[income_statement_df.index.isin(balance_sheet_df.index)]
+#     balance_sheet_df = balance_sheet_df[balance_sheet_df.index.isin(income_statement_df.index)]
+#     ratio_list = []
+#     index_list = []
+#     for index, row in income_statement_df.iterrows():
+#         net_sales = row['revenues']
+#         # Total assets are used in place of average assets over the period due to inconsistencies between companies.
+#         # The resulting ratios are very similar, and often identical, to what they would have otherwise been.
+#         total_assets = balance_sheet_df.loc[index]['assets'] 
+#         index_list.append(index)
+#         ratio = net_sales / total_assets
+#         ratio_list.append(ratio)
+#     ratio_series = pd.Series(data = ratio_list, index = index_list)
+#     return ratio_series
+
+def operating_margin(income_statement_df):
+    ratio_list = []
+    index_list = []
+    for index, row in income_statement_df.iterrows():
+        cost_of_revenue = row['cost_of_revenue']
+        revenues = row['revenues']
+        index_list.append(index)
+        if revenues > 0:
+            ratio = (revenues - cost_of_revenue) / revenues
+        else:
+            ratio = 0
+        ratio_list.append(ratio)
+    ratio_series = pd.Series(data = ratio_list, index = index_list)
+    return ratio_series
+
+def return_on_assets(income_statement_df, balance_sheet_df):
+    income_statement_df = income_statement_df[income_statement_df.index.isin(balance_sheet_df.index)]
+    balance_sheet_df = balance_sheet_df[balance_sheet_df.index.isin(income_statement_df.index)]
+    ratio_list = []
+    index_list = []
+    for index, row in income_statement_df.iterrows():
+        net_income = row['net_income_loss']
+        total_assets = balance_sheet_df.loc[index]['assets'] 
+        index_list.append(index)
+        ratio = net_income / total_assets
+        ratio_list.append(ratio)
+    ratio_series = pd.Series(data = ratio_list, index = index_list)
+    return ratio_series
+
+def return_on_equity(income_statement_df, balance_sheet_df):
+    income_statement_df = income_statement_df[income_statement_df.index.isin(balance_sheet_df.index)]
+    balance_sheet_df = balance_sheet_df[balance_sheet_df.index.isin(income_statement_df.index)]
+    ratio_list = []
+    index_list = []
+    for index, row in income_statement_df.iterrows():
+        net_income = row['net_income_loss']
+        total_assets = balance_sheet_df.loc[index]['equity'] 
+        index_list.append(index)
+        ratio = net_income / total_assets
+        ratio_list.append(ratio)
+    ratio_series = pd.Series(data = ratio_list, index = index_list)
+    return ratio_series
+
+# def price_to_earnings(): # Will need to retrieve stock information from another API request
+
+def final_df_check(feature_df):
+    # Dropping null values and checking each column for ratios of 0, which could be misleading.
+    print(feature_df.info())
+    feature_df = feature_df.dropna()
+    column_list = feature_df.columns
+    for column in column_list:
+        zero_count = feature_df[column].loc[feature_df[column] == 0].count()
+        print(f'The column {column} has {zero_count} rows with values of zero!')
+    # Adding another column indicating whether or not the company pays any interest. 
+    interest_status = []
+    for index, row in feature_df.iterrows():
+        if row['interest_coverage'] > 0:
+            interest_status.append(1)
+        else:
+            interest_status.append(0)   
+    feature_df['has_interest_payments'] = interest_status
+
+    return feature_df
