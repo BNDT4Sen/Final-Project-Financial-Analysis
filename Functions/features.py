@@ -139,7 +139,7 @@ def return_on_equity(income_statement_df, balance_sheet_df):
 def final_df_check(feature_df):
     # Dropping null values and checking each column for ratios of 0, which could be misleading.
     print(feature_df.info())
-    feature_df = feature_df.dropna()
+    feature_df = feature_df.dropna().copy()
     column_list = feature_df.columns
     for column in column_list:
         zero_count = feature_df[column].loc[feature_df[column] == 0].count()
