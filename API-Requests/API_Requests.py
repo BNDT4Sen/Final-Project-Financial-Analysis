@@ -11,33 +11,6 @@ ticker_list = list(Russel_df['Ticker'])
 
 # ticker_list = ['AMD', 'INTC', 'NVDA', 'MSFT', 'AAPL'] # List for testing purposes.
 
-# List of the 125 largest American Tech Companies, for later use.
-technology_125_list = ['AAPL', 'MSFT', 'GOOG', 'AMZN', 'NVDA', 
-               'META', 'TSLA', 'AVGO', 'ORCL', 'ADBE', 
-               'CSCO', 'CRM', 'NFLX', 'AMD', 'TXN', 
-               'INTC', 'INTU', 'IBM', 'QCOM', 'AMAT', 
-               'BKNG', 'NOW', 'ADP', 'ADI', 'LRCX', 
-               'UBER', 'ABNB', 'FI', 'MU', 'EQIX', 
-               'ATVI', 'PYPL', 'KLAC', 'VMW', 'SNPS', 
-               'PANW', 'CDNS', 'WDAY', 'ANET', 'SNOW', 
-               'MRVL', 'ROP', 'MCHP', 'FTNT', 'ON', 
-               'ADSK', 'TTD', 'IQV', 'DELL', 'SQ', 
-               'PLTR', 'CRWD', 'FIS', 'DDOG', 'EA', 
-               'CSGP', 'DASH', 'GFS', 'HPQ', 'GPN', 
-               'VEEV', 'SYM', 'KEYS', 'MDB', 'ALGN', 
-               'ANSS', 'MPWR', 'HUBS', 'TTWO', 'EBAY', 
-               'HPE', 'NET', 'FICO', 'ZS', 'ZM', 
-               'COIN', 'ENPH', 'SMCI', 'SWKS', 'SNAP', 
-               'SPLK', 'PTC', 'PAYC', 'NTAP', 'FDS', 
-               'EXPE', 'TYL', 'ENTG', 'BSY', 'U', 
-               'AKAM', 'EPAM', 'DT', 'SSNC', 'CHWY', 
-               'TRMB', 'GEN', 'IOT', 'LDOS', 'Z', 
-               'LSCC', 'ZBRA', 'JKHY', 'ROKU', 'AZPN', 
-               'MTCH', 'OKTA', 'MANH', 'PCTY', 'PSTG', 
-               'CDAY', 'TWLO', 'XM', 'GDDY', 'APP', 
-               'TOST', 'DOX', 'DOCU', 'QRVO', 'HOOD', 
-               'ETSY', 'CFLT', 'DBX', 'FFIV', 'W']
-
 # Setup of key parameters for the requests library.
 API_Key = os.environ['POLYGON_API_KEY']
 
@@ -72,7 +45,7 @@ for ticker in ticker_list:
 
     temp_Json = json.loads(response.text)
 
-    # If obtaining data from a request is unsuccessful an exception is raised and keeps track of which Ticker.
+    # If obtaining data from a request is unsuccessful an exception is raised and keeps track of which Ticker ran into issues.
     try:
         file_name = temp_Json['results'][0]['tickers'][-1]
         file_name = ticker
@@ -91,7 +64,7 @@ for ticker in ticker_list:
 with open('./Data/Raw Request Data/AMD_Annual_Financials.json') as json_file:
     data = json.load(json_file)
 
-# Testing Metrics
+# A summary of the API Requests is outputted.
 print('#'*100)
 print(f'Number of stocks unavailable: {Error_Count}')
 print(f'Stocks Unavailable: {Error_List}')
