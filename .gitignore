@@ -1,3 +1,5 @@
 # Ignoring Pickle Files
 
+_pycache_
+.ipynb_checkpoints
 *.pickle
